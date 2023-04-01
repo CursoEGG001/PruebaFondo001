@@ -2,11 +2,13 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>Matriz con Zipf y Benford</title>
         <style>
             body {
                 margin: 0;
                 padding: 0;
+                text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff;
             }
 
             canvas {
@@ -15,11 +17,14 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
+                z-index: -1
             }
         </style>
     </head>
     <body>
+        <label>Ingrese un texto aquí</label>
         <textarea id="input" rows="10"></textarea>
+        <button id="boton">Ingresar</button>
         <script>
             // Obtiene las frecuencias de las palabras en el texto usando la ley de Zipf
             function obtenerFrecuenciasZipf(texto) {
@@ -121,7 +126,10 @@
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < n; j++) {
                         const valor = matriz[i][j];
-                        ctx.fillStyle = `rgb(${Math.floor(valor * 255)}, ${Math.floor(valor * 255)}, ${Math.floor(valor * 255)})`;
+                        const valorAleatorio1 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        const valorAleatorio2 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        const valorAleatorio3 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        ctx.fillStyle = `rgb(${Math.floor(valorAleatorio1 * 255)}, ${Math.floor(valorAleatorio2 * 255)}, ${Math.floor(valorAleatorio3 * 255)})`;
                         ctx.fillRect(j * width, i * height, width, height);
                     }
                 }
@@ -139,7 +147,6 @@
             // Agrega un evento al botón para generar la matriz
             const boton = document.getElementById("boton");
             boton.addEventListener("click", generarMatriz);
-
 
         </script>
     </body>
