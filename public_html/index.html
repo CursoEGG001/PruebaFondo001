@@ -16,12 +16,12 @@
                 font-size: 1.4rem;
             }
             h1 {
-                position: absolute;
+                position: fixed;
                 top: 0;
                 left: 0;
-                z-index: 999;
-                display: flow-root;
-                justify-content: center;
+                width: 90vw;
+                display: flow;
+                justify-content: flex-start;
                 align-self: center;
                 text-shadow: 0.2ch 0.4ch 1ch rgba(255, 255, 255, 0.75);
             }
@@ -33,7 +33,7 @@
             }
             #input {
                 width: 80vw;
-                height: 65vh;
+                height: 40vh;
                 margin: 5vw;
                 font-size: 1.2rem;
                 box-shadow: 1vw 1vh 12em 0.1rem gray ;
@@ -60,7 +60,6 @@
     </head>
     <body>
         <h1>Generador de Matriz con Zipf y Bendford</h1>
-        <br>
         <div id="container">
             <label for="input">Ingrese una frase:</label>
             <textarea id="input" aria-labelledby="input">Texto para generar Matriz</textarea>
@@ -196,7 +195,7 @@
                 const gnc = audioCtx.createGain();
                 osc.connect(gnc);
                 gnc.connect(audioCtx.destination);
-                osc.type = 'triangle';
+                osc.type = 'sine';
 
 
                 // Configura los parámetros para el glissando
