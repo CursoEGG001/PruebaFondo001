@@ -163,13 +163,45 @@
 
             // Obtiene el texto del área de texto y crea y muestra la matriz
             function generarMatriz() {
-                const texto = document.getElementById("input").value;
-                const frecuenciasZipf = obtenerFrecuenciasZipf(texto);
-                const frecuenciasBenford = obtenerFrecuenciasBenford(texto);
-                const matriz = crearMatriz(frecuenciasZipf, frecuenciasBenford);
-                mostrarMatriz(matriz);
+                    const texto = document.getElementById("input").value;
+                      // Obtener la matriz usando las funciones anteriores
+                    const frecuenciasZipf = obtenerFrecuenciasZipf(texto);
+                    const frecuenciasBenford = obtenerFrecuenciasBenford(texto);
+                    const matriz = crearMatriz(frecuenciasZipf, frecuenciasBenford);
+                    mostrarMatriz(matriz);
+                    // Crea un objeto Oscillator para generar el sonido
+                    const audioCtx = new AudioContext();
+                    const osc = audioCtx.createOscillator();
+                    const gnc = audioCtx.createGain();
+                    osc.connect(gnc);
+                    gnc.connect(audioCtx.destination);
+                    osc.type = 'triangle';
+
+
+                    // Configura los parámetros para el glissando
+                    const duration = 5; // duración del glissando en segundos
+                    const startFreq = 55; // frecuencia inicial
+                    const endFreq = 1760; // frecuencia final
+                    const numSteps = matriz.length; // número de pasos en el glissando
+                    const stepSize = (endFreq - startFreq) / numSteps; // tamaño de cada paso
+
+                    // Comienza el glissando
+                    osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+                    osc.start();
+                    // Genera el glissando usando los valores de la matriz
+                    for (let i = 0; i < numSteps; i++) {
+                        for (let j = 0; j < numSteps; j++) {
+                        const dato= isNaN(matriz[i][j]) ? 0.5 : matriz[i][j] ;
+                        const frequency = startFreq + (i + j) * stepSize;
+                        const time = audioCtx.currentTime + (i * numSteps + j) * (duration / (numSteps * numSteps));
+                        osc.frequency.linearRampToValueAtTime(frequency, time);
+                        gnc.gain.linearRampToValueAtTime(dato, time);
+                    }
             }
 
+            // Detiene el sonido después de que el glissando ha terminado
+            osc.stop(audioCtx.currentTime + duration);
+            }
             // Agrega un evento al botón para generar la matriz
             const boton = document.getElementById("boton");
             boton.addEventListener("click", generarMatriz);
