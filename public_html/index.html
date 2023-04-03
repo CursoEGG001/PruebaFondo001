@@ -102,24 +102,6 @@
                 return matriz;
             }
 
-            // Muestra la matriz en un canvas que se usará como fondo de página
-//            function mostrarMatriz(matriz) {
-//                const canvas = document.createElement("canvas");
-//                document.body.appendChild(canvas);
-//
-//                const ctx = canvas.getContext("2d");
-//                const n = matriz.length;
-//                const width = canvas.width / n;
-//                const height = canvas.height / n;
-//                for (let i = 0; i < n; i++) {
-//                    for (let j = 0; j < n; j++) {
-//                        const valor = matriz[i][j];
-//                        ctx.fillStyle = `rgb(${Math.floor(valor * 255)}, ${Math.floor(valor * 255)}, ${Math.floor(valor * 255)})`;
-//                        ctx.fillRect(j * width, i * height, width, height);
-//                    }
-//                }
-//            }
-
             // Obtiene las frecuencias de las palabras en el texto usando la ley de Zipf
             function obtenerFrecuenciasZipf(texto) {
                 const palabras = texto.toLowerCase().split(/\s+/);
