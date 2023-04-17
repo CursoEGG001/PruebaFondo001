@@ -153,8 +153,11 @@
                     for (let j = 0; j < n; j++) {
                         const valor = matriz[i][j];
                         const valorAleatorio1 = (valor) => Math.random() < 0.5 ? 0 : valor;
-                        const valorAleatorio2 = (valor) => Math.random() < 0.5 ? 0 : valor;
                         const valorAleatorio3 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        const valorAleatorio2 = (valor) => Math.random() < 0.5 ? 0 : valor;
+
+                        if (valorAleatorio1 === valorAleatorio3) valorAleatorio2 = valor;
+
                         ctx.fillStyle = `rgb(${Math.floor(valorAleatorio1 * 255)}, ${Math.floor(valorAleatorio2 * 255)}, ${Math.floor(valorAleatorio3 * 255)})`;
                         ctx.fillRect(j * width, i * height, width, height);
                     }
@@ -166,7 +169,45 @@
                 const texto = document.getElementById("input").value;
                 const frecuenciasZipf = obtenerFrecuenciasZipf(texto);
                 const frecuenciasBenford = obtenerFrecuenciasBenford(texto);
+                // Obtener la matriz usando las funciones anteriores
                 const matriz = crearMatriz(frecuenciasZipf, frecuenciasBenford);
+                // Crea un objeto Oscillator para generar el sonido
+                const audioCtx = new AudioContext();
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                // Configura los parámetros para el glissando
+                const duration = 3; // duración del glissando en segundos
+                const startFreq = 55; // frecuencia inicial
+                const endFreq = 2520; // frecuencia final
+                const numSteps = matriz.length; // número de pasos en el glissando
+                const stepSize = (endFreq - startFreq) / numSteps; // tamaño de cada paso
+                const gainNode=audioCtx.createGain();
+                
+                // Comienza el glissando
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+                
+                osc.start();
+                
+
+                const timeStep = duration / (numSteps * numSteps);
+                let time = audioCtx.currentTime;
+
+
+                // Genera el glissando usando los valores de la matriz
+                for (let i = 0; i < numSteps; i++) {
+                    for (let j = 0; j < numSteps; j++) {
+                        const valoruno = isNaN(matriz[i][j]) ? 0.5 : matriz[i][j];
+                        const frequency = startFreq + ( ((i + j)/ numSteps) * stepSize );
+                        osc.frequency.linearRampToValueAtTime(frequency, time);
+                        gainNode.gain.linearRampToValueAtTime(valoruno, time);
+                        time += timeStep;
+                    }
+                }
+
+                // Detiene el sonido después de que el glissando ha terminado
+                osc.stop(audioCtx.currentTime + duration);
                 mostrarMatriz(matriz);
             }
 
