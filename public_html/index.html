@@ -1,110 +1,213 @@
-
-<html>
+<!DOCTYPE html>
+<html lang="es">
     <head>
-        <title>Zipf and Benford Matrices</title>
+        <title>Matriz Zipf y Benford </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             body {
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
-                text-shadow: 1px 2px 2px whitesmoke;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.85);
+                font-size: 1.4rem;
+            }
+            h1 {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 90vw;
+                display: flow;
+                justify-content: flex-start;
+                align-self: center;
+                text-shadow: 0.2ch 0.4ch 1ch rgba(255, 255, 255, 0.75);
+            }
+
+            #container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #input {
+                width: 80vw;
+                height: 40vh;
+                margin: 5vw;
+                font-size: 1.2rem;
+                box-shadow: 1vw 1vh 12em 0.1rem gray ;
+            }
+            #boton {
+                padding: 10px 20px;
+                font-size: 1.02rem;
+                background-color: #D9D9D9;
+                color: black;
+                border: whitesmoke;
+                border-radius: 3px;
+                cursor: pointer;
+                box-shadow: 2px 2px 4px 3px rgba(255, 255, 255, 0.65);
             }
             canvas {
-                position: fixed;
+                position: absolute;
                 top: 0;
                 left: 0;
                 width: 100vw;
                 height: 100vh;
                 z-index: -1;
             }
-
-            .container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-            }
-
-            textarea {
-                width: 80%;
-                height: 50%;
-            }
-
-
         </style>
     </head>
-    <body> 
-        <canvas id="canvas"></canvas>
-
-        <div class="container">
+    <body>
+        <h1>Generador de Matriz con Zipf y Bendford</h1>
+        <div id="container">
             <label for="input">Ingrese una frase:</label>
-            <textarea id="input" rows="5" cols="50"></textarea>
-            <button onclick="generarMatriz()">Generar matriz</button>
+            <textarea id="input" aria-labelledby="input">Texto para generar Matriz</textarea>
+            <button id="boton" onclick="generarMatriz()" aria-label="Generar matriz">Generar matriz</button>
+            <canvas id="canvas" aria-hidden="true"></canvas>
         </div>
         <script>
-            function generarMatriz() {
-                const frase = document.getElementById("input").value;
-                const freq = obtenerFrecuencias(frase);
-                const sortedWords = ordenarPalabras(freq);
-                const valores = asignarValores(sortedWords);
-                const matriz = crearMatriz(valores);
-                mostrarMatriz(matriz);
-            }
-
-            function obtenerFrecuencias(frase) {
-                const palabras = frase.split(" ");
+            // Obtiene las frecuencias de las palabras en el texto usando la ley de Zipf
+            function obtenerFrecuenciasZipf(texto) {
+                const palabras = texto.toLowerCase().split(/\s+/);
                 const freq = new Map();
                 for (const palabra of palabras) {
                     freq.set(palabra, (freq.get(palabra) || 0) + 1);
                 }
-                return freq;
+                return [...freq.entries()].sort((a, b) => b[1] - a[1]);
             }
 
-            function ordenarPalabras(freq) {
-                const sortedWords = [...freq.entries()].sort((a, b) => b[1] - a[1]);
-                return sortedWords;
-            }
-
-            function asignarValores(sortedWords) {
-                const valores = [];
-                for (let i = 0; i < sortedWords.length; i++) {
-                    const frecuencia = sortedWords[i][1];
-                    valores.push(Math.log10(1 + 1 / frecuencia));
+            // Obtiene las frecuencias de los dígitos en el texto usando la ley de Benford
+            function obtenerFrecuenciasBenford(texto) {
+                const numeros = texto.replace(/[^0-9]/g, "");
+                const freq = new Array(10).fill(0);
+                for (const digito of numeros) {
+                    freq[digito]++;
                 }
-                return valores;
+                return freq.map((f) => f / numeros.length);
             }
 
-            function crearMatriz(valores) {
-                const n = valores.length;
+            // Crea una matriz con los valores de Zipf y Benford
+            function crearMatriz(frecuenciasZipf, frecuenciasBenford) {
+                const n = frecuenciasZipf.length;
                 const matriz = new Array(n);
                 for (let i = 0; i < n; i++) {
                     matriz[i] = new Array(n);
                     for (let j = 0; j < n; j++) {
-                        const index = (i + j) % n;
-                        matriz[i][j] = valores[index];
+                        const valorZipf = frecuenciasZipf[(i + j) % n][1];
+                        const valorBenford = frecuenciasBenford[(i * j) % 10];
+                        matriz[i][j] = valorZipf * valorBenford;
                     }
                 }
                 return matriz;
             }
 
+            // Obtiene las frecuencias de las palabras en el texto usando la ley de Zipf
+            function obtenerFrecuenciasZipf(texto) {
+                const palabras = texto.toLowerCase().split(/\s+/);
+                const freq = new Map();
+                for (const palabra of palabras) {
+                    freq.set(palabra, (freq.get(palabra) || 0) + 1);
+                }
+                return [...freq.entries()].sort((a, b) => b[1] - a[1]);
+            }
+
+            // Obtiene las frecuencias de los dígitos en el texto usando la ley de Benford
+            function obtenerFrecuenciasBenford(texto) {
+                const numeros = texto.replace(/[^0-9]/g, "");
+                const freq = new Array(10).fill(0);
+                for (const digito of numeros) {
+                    freq[digito]++;
+                }
+                return freq.map((f) => f / numeros.length);
+            }
+
+            // Crea una matriz con los valores de Zipf y Benford
+            function crearMatriz(frecuenciasZipf, frecuenciasBenford) {
+                const n = frecuenciasZipf.length;
+                const matriz = new Array(n);
+                for (let i = 0; i < n; i++) {
+                    matriz[i] = new Array(n);
+                    for (let j = 0; j < n; j++) {
+                        const valorZipf = frecuenciasZipf[(i + j) % n][1];
+                        const valorBenford = frecuenciasBenford[(i * j) % 10];
+                        matriz[i][j] = valorZipf * valorBenford;
+                    }
+                }
+                return matriz;
+            }
+
+            // Muestra la matriz en un canvas que se usará como fondo de página
             function mostrarMatriz(matriz) {
-                const canvas = document.getElementById("canvas");
+                // const canvas = document.createElement("canvas");
+                // document.body.appendChild(canvas);
+
                 const ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 const n = matriz.length;
                 const width = canvas.width / n;
                 const height = canvas.height / n;
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < n; j++) {
                         const valor = matriz[i][j];
-                        const valorAleatorio1 = ((valor) => Math.random() < 0.5 ? 0 : valor);
-                        const valorAleatorio2 = ((valor) => Math.random() < 0.5 ? 0 : valor);
-                        const valorAleatorio3 = ((valor) => Math.random() < 0.5 ? 0 : valor);
+                        const valorAleatorio1 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        const valorAleatorio2 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        const valorAleatorio3 = (valor) => Math.random() < 0.5 ? 0 : valor;
+                        if (valorAleatorio1 === valorAleatorio3) {
+                            valorAleatorio2 = valor;
+                        }
 
                         ctx.fillStyle = `rgb(${Math.floor(valorAleatorio1 * 255)}, ${Math.floor(valorAleatorio2 * 255)}, ${Math.floor(valorAleatorio3 * 255)})`;
                         ctx.fillRect(j * width, i * height, width, height);
                     }
                 }
             }
+
+            // Obtiene el texto del área de texto. Crea y muestra la matriz
+            function generarMatriz() {
+                const texto = document.getElementById("input").value;
+                // Obtener la matriz usando las funciones anteriores
+                const frecuenciasZipf = obtenerFrecuenciasZipf(texto);
+                const frecuenciasBenford = obtenerFrecuenciasBenford(texto);
+                const matriz = crearMatriz(frecuenciasZipf, frecuenciasBenford);
+                mostrarMatriz(matriz);
+                // Crea un objeto Oscillator para generar el sonido
+                const audioCtx = new AudioContext();
+                const osc = audioCtx.createOscillator();
+                const gnc = audioCtx.createGain();
+                osc.connect(gnc);
+                gnc.connect(audioCtx.destination);
+                osc.type = 'sine';
+
+
+                // Configura los parámetros para el glissando
+                const duration = 3; // duración del glissando en segundos
+                const startFreq = 55; // frecuencia inicial
+                const endFreq = 1760; // frecuencia final
+                const numSteps = matriz.length; // número de pasos en el glissando
+                const stepSize = (endFreq - startFreq) / numSteps; // tamaño de cada paso
+
+                // Comienza el glissando
+                osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+                osc.start();
+                // Genera el glissando usando los valores de la matriz
+                for (let i = 0; i < numSteps; i++) {
+                    for (let j = 0; j < numSteps; j++) {
+                        const dato = isNaN(matriz[i][j]) ? 0.5 : matriz[i][j];
+                        const frequency = startFreq + (i + j) * stepSize;
+                        const time = audioCtx.currentTime + (i * numSteps + j) * (duration / (numSteps * numSteps));
+                        osc.frequency.linearRampToValueAtTime(frequency, time);
+                        gnc.gain.linearRampToValueAtTime(dato, time);
+                    }
+                }
+
+                // Detiene el sonido después de que el glissando ha terminado
+                osc.stop(audioCtx.currentTime + duration);
+            }
+            // Agrega un evento al botón para generar la matriz
+            const boton = document.getElementById("boton");
+            boton.addEventListener("click", generarMatriz);
+
         </script>
     </body>
 </html>
